@@ -1,0 +1,14 @@
+# Environment variables for the Meeting RAG Server
+# Copy this file to .env and add your actual values
+
+# Hugging Face API Configuration
+HUGGINGFACE_API_TOKEN=your_huggingface_token_here
+HUGGINGFACE_API_URL=https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-base
+
+# Server Configuration
+UPLOAD_DIR=uploads
+MAX_FILE_SIZE_MB=50
+ALLOWED_EXTENSIONS=.txt,.pdf
+
+# Logging Configuration
+LOG_LEVEL=INFO
