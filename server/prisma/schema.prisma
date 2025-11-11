@@ -1,0 +1,19 @@
+generator client {
+  provider = "prisma-client-py"
+  interface = "asyncio"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:mysecretpassword@localhost:5433/meeting_rag"
+}
+
+model User {
+  id              String   @id @default(uuid())
+  name            String
+  email           String   @unique
+  hashed_password String
+  index_name_pdf  String?
+  index_name_ocr  String?
+  created_at      DateTime @default(now())
+}

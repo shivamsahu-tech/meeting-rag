@@ -1,0 +1,64 @@
+# ------------------------------------
+# General and Operating System Ignore
+# ------------------------------------
+.DS_Store
+Thumbs.db
+.env
+.env.local
+.vscode/
+
+# ------------------------------------
+# 1. SERVER (FastAPI/Python) Ignore
+# ------------------------------------
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Temporary files, logs, and databases
+*.sqlite
+*.log
+/db.sqlite3
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+eggs/
+*.egg-info/
+.installed.cfg
+*.mo
+*.pot
+
+# Virtual Environment
+# Assuming a common setup where the venv is in the root or a standard name
+venv/
+env/
+.venv/
+
+# Testing
+.pytest_cache/
+
+# Coverage
+.coverage
+htmlcov/
+.coverage.*
+
+# IDE specific files (e.g., PyCharm)
+.idea/
+
+# ------------------------------------
+# 2. CLIENT (Next.js/Node.js) Ignore
+# ------------------------------------
+
+# Dependenode_modules
+.pnp
+.pnp.js
+dist
+build
+out
+.next
+next-env.d.ts
+public
