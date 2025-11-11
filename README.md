@@ -1,5 +1,6 @@
 <div align="center">
-# 🎙️ Meeting RAG
+
+# 🧠 MeetRag AI
 
 ### *AI-Powered Meeting Assistant with Real-Time Transcription & Intelligent Document Search*
 
