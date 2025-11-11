@@ -1,4 +1,4 @@
-<div align="center">
+
 
 # 🧠 MeetRag AI
 
@@ -12,7 +12,6 @@
 [![Deepgram](https://img.shields.io/badge/Deepgram-Nova-13EF93.svg)](https://deepgram.com/)
 [![Deployed](https://img.shields.io/badge/Deployed-Vercel-000000.svg)](https://meet-rag.vercel.app)
 
-[🚀 Live Demo](https://meet-rag.vercel.app) • [🎥 Watch Demo](#-demo--screenshots) • [📖 Documentation](#-documentation) • [⚡ Quick Start](#-quick-start)
 
 ---
 
@@ -57,7 +56,16 @@ Meeting RAG provides an **AI assistant that listens, understands, and retrieves*
 
 ### 📥 Document Processing Pipeline
 ```mermaid
-graph LR A[📄 Upload Documents] --> B{Document Type} B -->|PDF| C[📝 Text Extraction] B -->|PDF| D[🖼️ Image Extraction] C --> E[✂️ Text Chunking] D --> F[☁️ Cloudinary Upload] F --> G[🎨 Pixtral-12B Captioning] E --> H[🧬 Embedding Generation] G --> H H --> I[📊 Pinecone Storage]
+graph LR
+    A[📄 Upload Documents] --> B{Document Type}
+    B -->|PDF| C[📝 Text Extraction]
+    B -->|PDF| D[🖼️ Image Extraction]
+    C --> E[✂️ Text Chunking]
+    D --> F[☁️ Cloudinary Upload]
+    F --> G[🎨 Pixtral-12B Captioning]
+    E --> H[🧬 Embedding Generation]
+    G --> H
+    H --> I[📊 Pinecone Storage]
 ```
 
 ### 🔄 Dual Processing Approach
@@ -306,6 +314,4 @@ agent_questions = [
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/shsax)
 [![Portfolio](https://img.shields.io/badge/Portfolio-FF5722?style=for-the-badge&logo=todoist&logoColor=white)](https://shsax.vercel.app)
 
-
-</div>
 
