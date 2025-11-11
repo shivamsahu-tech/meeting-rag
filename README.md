@@ -56,27 +56,7 @@ Meeting RAG provides an **AI assistant that listens, understands, and retrieves*
 
 ### 📥 Document Processing Pipeline
 ```mermaid
-graph TD
-    %% === Pipeline 1: PyMuPDF Text + Image Extraction ===
-    subgraph Pipeline1["🧩 Pipeline 1: PyMuPDF Extraction"]
-        A1["📄 PDF Upload"] --> B1["🧠 Extract Text & Images (PyMuPDF)"]
-        B1 --> C1["🖼️ Upload Images to Cloudinary"]
-        C1 --> D1["🎨 Generate Captions (Pixtral-12B)"]
-        B1 --> E1["✂️ Chunk Extracted Text"]
-        D1 --> F1["🧬 Generate Embeddings (Captions)"]
-        E1 --> G1["🧬 Generate Embeddings (Text)"]
-        F1 --> H1["📊 Store in Vector DB (Pinecone)\nwith Image URLs & Captions"]
-        G1 --> H1
-    end
-
-    %% === Pipeline 2: Page-wise OCR Extraction ===
-    subgraph Pipeline2["🔁 Pipeline 2: Page-wise OCR Extraction"]
-        A2["📄 PDF Upload"] --> B2["🖼️ Convert Each Page → PNG"]
-        B2 --> C2["☁️ Upload PNGs to Cloudinary"]
-        C2 --> D2["🧾 OCR Each Page (Text Recognition)"]
-        D2 --> E2["🧬 Generate Embeddings (OCR Text)"]
-        E2 --> F2["📊 Store in Vector DB (Pinecone)\nwith Page Image URLs & OCR Data"]
-    end
+graph LR A[📄 Upload Documents] --> B{Document Type} B -->|PDF| C[📝 Text Extraction] B -->|PDF| D[🖼️ Image Extraction] C --> E[✂️ Text Chunking] D --> F[☁️ Cloudinary Upload] F --> G[🎨 Pixtral-12B Captioning] E --> H[🧬 Embedding Generation] G --> H H --> I[📊 Pinecone Storage]
 ```
 
 ### 🔄 Dual Processing Approach
