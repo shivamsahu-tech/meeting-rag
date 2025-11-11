@@ -1,3 +1,4 @@
+<div align="center">
 # 🎙️ Meeting RAG
 
 ### *AI-Powered Meeting Assistant with Real-Time Transcription & Intelligent Document Search*
@@ -55,16 +56,28 @@ Meeting RAG provides an **AI assistant that listens, understands, and retrieves*
 
 ### 📥 Document Processing Pipeline
 ```mermaid
-graph LR
-    A[📄 Upload Documents] --> B{Document Type}
-    B -->|PDF| C[📝 Text Extraction]
-    B -->|PDF| D[🖼️ Image Extraction]
-    C --> E[✂️ Text Chunking]
-    D --> F[☁️ Cloudinary Upload]
-    F --> G[🎨 Pixtral-12B Captioning]
-    E --> H[🧬 Embedding Generation]
-    G --> H
-    H --> I[📊 Pinecone Storage]
+graph TD
+    %% === Pipeline 1: PyMuPDF Text + Image Extraction ===
+    subgraph Pipeline_1["🧩 Pipeline 1: PyMuPDF Extraction"]
+        A1[📄 PDF Upload] --> B1[🧠 Extract Text & Images (PyMuPDF)]
+        B1 --> C1[🖼️ Upload Images to Cloudinary]
+        C1 --> D1[🎨 Generate Captions (Pixtral-12B)]
+        B1 --> E1[✂️ Chunk Extracted Text]
+        D1 --> F1[🧬 Generate Embeddings (Captions)]
+        E1 --> G1[🧬 Generate Embeddings (Text)]
+        F1 --> H1[📊 Store in Vector DB (Pinecone)\nwith Image URLs & Captions]
+        G1 --> H1
+    end
+
+    %% === Pipeline 2: Page-wise OCR Extraction ===
+    subgraph Pipeline_2["🔁 Pipeline 2: Page-wise OCR Extraction"]
+        A2[📄 PDF Upload] --> B2[🖼️ Convert Each Page → PNG]
+        B2 --> C2[☁️ Upload PNGs to Cloudinary]
+        C2 --> D2[🧾 OCR Each Page (Text Recognition)]
+        D2 --> E2[🧬 Generate Embeddings (OCR Text)]
+        E2 --> F2[📊 Store in Vector DB (Pinecone)\nwith Page Image URLs & OCR Data]
+    end
+
 ```
 
 ### 🔄 Dual Processing Approach
@@ -140,8 +153,6 @@ Formatted Response
 #### 🏠 Main Dashboard
 ![Dashboard](https://drive.google.com/uc?export=view&id=1n2MC6t3_9rjdQvPJBUt-6_Mt1nuesvzX)
 
-#### 📄 Document Upload & Processing
-![Document Processing](https://drive.google.com/uc?export=view&id=1X71MDj5XPSabGr7rtvVLS0Zs-dMsdtnZ)
 
 #### 🎙️ Live Meeting Interface
 ![Meeting Interface](https://drive.google.com/uc?export=view&id=1o5Qw55iV02qgGyFmDO5lQabdkkesEFUa)
@@ -314,4 +325,7 @@ agent_questions = [
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/shsax)
 [![Portfolio](https://img.shields.io/badge/Portfolio-FF5722?style=for-the-badge&logo=todoist&logoColor=white)](https://shsax.vercel.app)
+
+
+</div>
 
