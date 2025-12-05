@@ -62,21 +62,21 @@ async def upload_pdf(file: UploadFile, index_name_text: str | None = None, index
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     role = websocket.query_params.get("role", "unknown")
-    logger.info(f"🔌 WebSocket connected: {role}")
+    logger.info(f"WebSocket connected: {role}")
 
     try:
         # Delegate all logic to handler
         await handle_deepgram_stream(websocket, role)
 
     except WebSocketDisconnect:
-        logger.info(f"🔌 WebSocket disconnected: {role}")
+        logger.info(f"WebSocket disconnected: {role}")
 
     except Exception as e:
-        logger.error(f"❌ Error in WebSocket endpoint for {role}: {e}", exc_info=True)
+        logger.error(f"Error in WebSocket endpoint for {role}: {e}", exc_info=True)
         await websocket.close()
 
     finally:
-        logger.info(f"🔒 Connection closed for {role}")
+        logger.info(f"Connection closed for {role}")
 
 
 @app.websocket("/ws/dual-channel")
@@ -86,23 +86,23 @@ async def websocket_dual_channel_endpoint(websocket: WebSocket):
     Receives interleaved stereo audio: Channel 0 (user), Channel 1 (assistant).
     """
     await websocket.accept()
-    logger.info("🔌 WebSocket connected: dual-channel mode")
+    logger.info("WebSocket connected: dual-channel mode")
 
     try:
         await handle_deepgram_dual_channel(websocket)
 
     except WebSocketDisconnect:
-        logger.info("🔌 WebSocket disconnected: dual-channel")
+        logger.info("WebSocket disconnected: dual-channel")
 
     except Exception as e:
-        logger.error(f"❌ Error in dual-channel WebSocket endpoint: {e}", exc_info=True)
+        logger.error(f"Error in dual-channel WebSocket endpoint: {e}", exc_info=True)
         try:
             await websocket.close()
         except:
             pass
 
     finally:
-        logger.info("🔒 Dual-channel connection closed")
+        logger.info("Dual-channel connection closed")
 
 
 @app.post("/retrieve-response")
@@ -111,16 +111,16 @@ async def retrieve_response(request: Request):
         # Try to parse JSON body
         body_bytes = await request.body()
         if not body_bytes:
-            logger.error("❌ Empty request body")
+            logger.error("Empty request body")
             return JSONResponse(status_code=400, content={"error": "Empty request body"})
 
         try:
             data = json.loads(body_bytes)
         except json.JSONDecodeError:
-            logger.error(f"❌ Invalid JSON received: {body_bytes[:200]!r}")
+            logger.error(f"Invalid JSON received: {body_bytes[:200]!r}")
             return JSONResponse(status_code=400, content={"error": "Invalid JSON payload"})
 
-        logger.info(f"📥 Received /retrieve-response with data: {data}")
+        logger.info(f"Received /retrieve-response with data: {data}")
 
         # Extract parameters safely
         index_name_pdf = data.get("index_name_pdf")
@@ -145,7 +145,7 @@ async def retrieve_response(request: Request):
         return {"status": "success", "data": response}
 
     except Exception as e:
-        logger.exception("🔥 Error in /retrieve-response")
+        logger.exception("Error in /retrieve-response")
         return JSONResponse(
             status_code=500,
             content={"status": "error", "message": str(e)},
@@ -175,18 +175,18 @@ async def health():
 async def startup_event():
     """Application startup"""
     logger.info("=" * 80)
-    logger.info("🚀 Starting up application...")
+    logger.info(" Starting up application...")
     logger.info("=" * 80)
-    logger.info("✅ Application startup complete")
-    await connect_db()
+    logger.info(" Application startup complete")
+    # await connect_db()
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Cleanup on shutdown"""
     logger.info("=" * 80)
-    logger.info("🛑 Shutting down application...")
+    logger.info(" Shutting down application...")
     logger.info("=" * 80)
-    logger.info("✅ Application shutdown complete")
+    logger.info(" Application shutdown complete")
     await disconnect_db()
 
 

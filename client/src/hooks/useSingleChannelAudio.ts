@@ -113,7 +113,7 @@ export function useSingleChannelAudio() {
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log(`✅ WebSocket open for ${role}`);
+        console.log(`WebSocket open for ${role}`);
         setIsConnected(true);
         setupAudioProcessing(stream, ws, role, audioCtxRef, processorRef);
       };
@@ -137,92 +137,66 @@ export function useSingleChannelAudio() {
 
           // console.log("data :", raw);
 
+          setTranscripts((prev) => {
+            const updated = [...prev];
+            // const roleIndex = updated.length-1;
 
+            // Normalize start time (Deepgram's or fallback)
+            const startTime = raw.chunk_start ?? Date.now();
 
+            const chunk = {
+              start_time: startTime,
+              text:  cleaned,
+              is_final: isFinal,
+            };
 
-setTranscripts((prev) => {
-  const updated = [...prev];
-  // const roleIndex = updated.length-1;
+            if (role != updated[updated.length - 1]?.role) {
+                // No entry for this role yet
+                updated.push({ role, texts: [chunk] });
 
-  // Normalize start time (Deepgram's or fallback)
-  const startTime = raw.chunk_start ?? Date.now();
+              for (let i = 0; i < updated.length - 1; i++) {
+                const roleObj = { ...updated[i] };
+                // Keep only final chunks
+                const finalTexts = roleObj.texts.filter((t) => t.is_final);
 
-  const chunk = {
-    start_time: startTime,
-    text:  cleaned,
-    is_final: isFinal,
-  };
+                if (finalTexts.length > 0) {
+                  updated[i] = { ...roleObj, texts: finalTexts };
+                } else {
+                  // If no final texts remain, remove this conversation
+                  updated.splice(i, 1);
+                  i--; // adjust index after removal
+                }
+              }
+            } else {
+              const roleObj = { ...updated[updated.length-1] };
+              const texts = [...roleObj.texts];
+              const lastChunk = texts[texts.length - 1];
 
-  if (role != updated[updated.length - 1]?.role) {
-    // 🆕 No entry for this role yet
-    updated.push({ role, texts: [chunk] });
+              //  CASE 1: Same role + same start_time → replace last chunk
+              if (
+                lastChunk && Math.abs(Number(lastChunk.start_time) - Number(startTime)) < 0.5
+              ) {
+                texts[texts.length - 1] = chunk;
+              }
+              //  CASE 2: Different start_time → push new chunk
+              else {
+                texts.push(chunk);
+              }
 
-  for (let i = 0; i < updated.length - 1; i++) {
-    const roleObj = { ...updated[i] };
-    // Keep only final chunks
-    const finalTexts = roleObj.texts.filter((t) => t.is_final);
+            if (isFinal) {
+            for (let i = 0; i < texts.length - 1; i++) {
+              if (!texts[i].is_final) {
+                texts.splice(i, 1);
+                i--; // adjust index after removal
+              }
+            }
+          }
 
-    if (finalTexts.length > 0) {
-      updated[i] = { ...roleObj, texts: finalTexts };
-    } else {
-      // If no final texts remain, remove this conversation
-      updated.splice(i, 1);
-      i--; // adjust index after removal
-    }
-  }
+              updated[updated.length-1] = { ...roleObj, texts };
+            }
 
-
-
-
-
-  } else {
-    const roleObj = { ...updated[updated.length-1] };
-    const texts = [...roleObj.texts];
-    const lastChunk = texts[texts.length - 1];
-
-    // 🧩 CASE 1: Same role + same start_time → replace last chunk
-    if (
-      lastChunk && Math.abs(Number(lastChunk.start_time) - Number(startTime)) < 0.5
-    ) {
-      texts[texts.length - 1] = chunk;
-    }
-    // 🧩 CASE 2: Different start_time → push new chunk
-    else {
-      texts.push(chunk);
-    }
-
-   if (isFinal) {
-  for (let i = 0; i < texts.length - 1; i++) {
-    if (!texts[i].is_final) {
-      texts.splice(i, 1);
-      i--; // adjust index after removal
-    }
-  }
-}
-
-    updated[updated.length-1] = { ...roleObj, texts };
-
-
-
-
-
-  }
-
-  return updated;
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
+            return updated;
+          });
 
         } catch (err) {
           console.error("Bad WS data:", err);
@@ -230,16 +204,16 @@ setTranscripts((prev) => {
       };
 
       ws.onerror = (err) => {
-        console.error(`❌ WebSocket error for ${role}:`, err);
+        console.error(`WebSocket error for ${role}:`, err);
       };
 
       ws.onclose = (evt) => {
-        console.warn(`🔒 ${role} socket closed:`, evt.code, evt.reason);
+        console.warn(`${role} socket closed:`, evt.code, evt.reason);
         wsRef.current = null;
         setIsConnected(false);
         if (retryCount < maxRetries) {
           retryCount++;
-          console.log(`🔁 Retrying ${role} socket (${retryCount}/${maxRetries})...`);
+          console.log(`Retrying ${role} socket (${retryCount}/${maxRetries})...`);
           setTimeout(connectWs, 1000 * retryCount);
         } else {
           setError(`Failed to connect ${role} after ${maxRetries} retries.`);
@@ -274,7 +248,7 @@ setTranscripts((prev) => {
 
       audioCtxRef.current = audioCtx;
       processorRef.current = processor;
-      console.log(`🎧 Audio setup complete for ${role}`);
+      console.log(`Audio setup complete for ${role}`);
     } catch (err) {
       console.error(`Error in setupAudioProcessing for ${role}:`, err);
       setError(`Audio setup failed for ${role}`);

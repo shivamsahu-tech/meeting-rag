@@ -26,7 +26,7 @@ def get_deepgram_client():
 
 
 async def handle_deepgram_stream(websocket: WebSocket, role: str):
-    logger.info(f"🎧 Initializing Deepgram connection for {role}")
+    logger.info(f"Initializing Deepgram connection for {role}")
 
     if not DEEPGRAM_API_KEY or DEEPGRAM_API_KEY == "your_api_key_here":
         await websocket.send_json({"error": "Missing DEEPGRAM_API_KEY", "role": role})
@@ -38,7 +38,7 @@ async def handle_deepgram_stream(websocket: WebSocket, role: str):
     send_task = None
 
     try:
-        # 🎙️ Create Deepgram context
+        #  Create Deepgram context
         dg_context = dg_client.listen.v1.connect(
             model="nova-3",
             encoding="linear16",
@@ -50,13 +50,13 @@ async def handle_deepgram_stream(websocket: WebSocket, role: str):
         )
 
         dg_socket = dg_context.__enter__()
-        logger.info(f"✅ Deepgram connection established for {role}")
+        logger.info(f"Deepgram connection established for {role}")
 
         await websocket.send_json({"status": "ready", "role": role})
 
         event_loop = asyncio.get_running_loop()
 
-        # 🧠 Callback for messages from Deepgram
+        #  Callback for messages from Deepgram
         def on_message(message: ListenV1SocketClientResponse) -> None:
             try:
                 if hasattr(message, "channel"):
@@ -68,7 +68,7 @@ async def handle_deepgram_stream(websocket: WebSocket, role: str):
 
                         is_final = getattr(message, "is_final", False)
 
-                        # ⏱️ Extract timing (Deepgram gives these at chunk-level)
+                        #  Extract timing (Deepgram gives these at chunk-level)
                         chunk_start = getattr(message, "start", None)
                         chunk_end = getattr(message, "end", None)
                         current_time = time.time()
@@ -80,9 +80,9 @@ async def handle_deepgram_stream(websocket: WebSocket, role: str):
                             chunk_end = current_time
 
                         duration_str = f"{chunk_start:.2f}-{chunk_end:.2f}s"
-                        tag = "📝 Final" if is_final else "💬 Interim"
+                        tag = " Final" if is_final else " Interim"
 
-                        # 🧩 Push chunk to async queue
+                        #  Push chunk to async queue
                         asyncio.run_coroutine_threadsafe(
                             transcript_queue.put(
                                 {
@@ -96,24 +96,24 @@ async def handle_deepgram_stream(websocket: WebSocket, role: str):
                             event_loop,
                         )
 
-                        # 🪶 Log transcript with timestamp
+                        #  Log transcript with timestamp
                         logger.info(f"{tag} [{role}] ({duration_str}) → {transcript}")
 
             except Exception as e:
                 logger.error(
-                    f"❌ Error processing Deepgram message for {role}: {e}", exc_info=True
+                    f" Error processing Deepgram message for {role}: {e}", exc_info=True
                 )
 
-        # 🧷 Register Deepgram socket events
-        dg_socket.on(EventType.OPEN, lambda _: logger.info(f"🔊 Deepgram socket open for {role}"))
+        # Register Deepgram socket events
+        dg_socket.on(EventType.OPEN, lambda _: logger.info(f"Deepgram socket open for {role}"))
         dg_socket.on(EventType.MESSAGE, on_message)
-        dg_socket.on(EventType.CLOSE, lambda _: logger.info(f"🔒 Deepgram socket closed for {role}"))
-        dg_socket.on(EventType.ERROR, lambda e: logger.error(f"❌ Deepgram error for {role}: {e}"))
+        dg_socket.on(EventType.CLOSE, lambda _: logger.info(f"Deepgram socket closed for {role}"))
+        dg_socket.on(EventType.ERROR, lambda e: logger.error(f"Deepgram error for {role}: {e}"))
 
-        # 🧵 Run Deepgram listener in background thread
+        # Run Deepgram listener in background thread
         threading.Thread(target=lambda: dg_socket.start_listening(), daemon=True).start()
 
-        # 🚀 Task to forward transcripts to frontend
+        # Task to forward transcripts to frontend
         async def send_transcripts():
             while is_streaming:
                 try:
@@ -127,7 +127,7 @@ async def handle_deepgram_stream(websocket: WebSocket, role: str):
 
         send_task = asyncio.create_task(send_transcripts())
 
-        # 🎧 Receive raw audio stream from client
+        # Receive raw audio stream from client
         while True:
             msg = await websocket.receive()
             if "bytes" in msg:
@@ -138,14 +138,14 @@ async def handle_deepgram_stream(websocket: WebSocket, role: str):
                     if data.get("event") == "end":
                         break
                 except json.JSONDecodeError:
-                    logger.warning(f"⚠️ Non-JSON text from frontend: {msg['text']}")
+                    logger.warning(f"Non-JSON text from frontend: {msg['text']}")
             await asyncio.sleep(0.001)
 
     except WebSocketDisconnect:
-        logger.info(f"🔌 Disconnected: {role}")
+        logger.info(f"Disconnected: {role}")
 
     except Exception as e:
-        logger.error(f"❌ Deepgram stream error for {role}: {e}", exc_info=True)
+        logger.error(f"Deepgram stream error for {role}: {e}", exc_info=True)
         await websocket.send_json({"error": str(e), "role": role})
 
     finally:
@@ -161,4 +161,4 @@ async def handle_deepgram_stream(websocket: WebSocket, role: str):
             dg_context.__exit__(None, None, None)
         except Exception:
             pass
-        logger.info(f"🛑 Deepgram stream closed for {role}")
+        logger.info(f"Deepgram stream closed for {role}")

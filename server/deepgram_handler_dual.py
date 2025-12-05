@@ -30,7 +30,7 @@ async def handle_deepgram_dual_channel(websocket: WebSocket):
     Handle dual-channel (stereo) audio input over one WebSocket connection.
     Channel 0 = user mic, Channel 1 = assistant/system output
     """
-    logger.info("🎧 Initializing Deepgram dual-channel connection")
+    logger.info("Initializing Deepgram dual-channel connection")
 
     if not DEEPGRAM_API_KEY or DEEPGRAM_API_KEY == "your_api_key_here":
         await websocket.send_json({"error": "Missing DEEPGRAM_API_KEY"})
@@ -42,7 +42,7 @@ async def handle_deepgram_dual_channel(websocket: WebSocket):
     send_task = None
 
     try:
-        # 🎙️ Create Deepgram connection (multichannel enabled)
+        # Create Deepgram connection (multichannel enabled)
         dg_context = dg_client.listen.v1.connect(
             model="nova-3",
             encoding="linear16",
@@ -55,13 +55,13 @@ async def handle_deepgram_dual_channel(websocket: WebSocket):
         )
 
         dg_socket = dg_context.__enter__()
-        logger.info("✅ Deepgram dual-channel connection established")
+        logger.info("Deepgram dual-channel connection established")
 
         await websocket.send_json({"status": "ready", "mode": "dual-channel"})
 
         event_loop = asyncio.get_running_loop()
 
-        # 🧠 Process messages from Deepgram
+        # Process messages from Deepgram
         def on_message(message: ListenV1SocketClientResponse) -> None:
             try:
                 if hasattr(message, "channel"):
@@ -81,7 +81,7 @@ async def handle_deepgram_dual_channel(websocket: WebSocket):
                         chunk_start = getattr(message, "start", time.time())
                         chunk_end = getattr(message, "end", time.time())
                         duration_str = f"{chunk_start:.2f}-{chunk_end:.2f}s"
-                        tag = "📝 Final" if is_final else "💬 Interim"
+                        tag = "Final" if is_final else "Interim"
 
                         # Push transcript to queue
                         asyncio.run_coroutine_threadsafe(
@@ -101,18 +101,18 @@ async def handle_deepgram_dual_channel(websocket: WebSocket):
                         logger.info(f"{tag} [{role}] ({duration_str}) → {transcript}")
 
             except Exception as e:
-                logger.error(f"❌ Error processing Deepgram message: {e}", exc_info=True)
+                logger.error(f"Error processing Deepgram message: {e}", exc_info=True)
 
         # 🧷 Register Deepgram socket events
-        dg_socket.on(EventType.OPEN, lambda _: logger.info("🔊 Deepgram dual socket open"))
+        dg_socket.on(EventType.OPEN, lambda _: logger.info("Deepgram dual socket open"))
         dg_socket.on(EventType.MESSAGE, on_message)
-        dg_socket.on(EventType.CLOSE, lambda _: logger.info("🔒 Deepgram dual socket closed"))
-        dg_socket.on(EventType.ERROR, lambda e: logger.error(f"❌ Deepgram error: {e}"))
+        dg_socket.on(EventType.CLOSE, lambda _: logger.info("Deepgram dual socket closed"))
+        dg_socket.on(EventType.ERROR, lambda e: logger.error(f"Deepgram error: {e}"))
 
-        # 🧵 Background listening thread
+        # Background listening thread
         threading.Thread(target=lambda: dg_socket.start_listening(), daemon=True).start()
 
-        # 🚀 Background sender for transcripts
+        # Background sender for transcripts
         async def send_transcripts():
             while is_streaming:
                 try:
@@ -126,7 +126,7 @@ async def handle_deepgram_dual_channel(websocket: WebSocket):
 
         send_task = asyncio.create_task(send_transcripts())
 
-        # 🎧 Receive binary (audio) + control messages from frontend
+        # Receive binary (audio) + control messages from frontend
         while True:
             msg = await websocket.receive()
             if "bytes" in msg:
@@ -137,14 +137,14 @@ async def handle_deepgram_dual_channel(websocket: WebSocket):
                     if data.get("event") == "end":
                         break
                 except json.JSONDecodeError:
-                    logger.warning(f"⚠️ Non-JSON text: {msg['text']}")
+                    logger.warning(f"Non-JSON text: {msg['text']}")
             await asyncio.sleep(0.001)
 
     except WebSocketDisconnect:
         logger.info("🔌 Disconnected: dual-channel")
 
     except Exception as e:
-        logger.error(f"❌ Deepgram dual stream error: {e}", exc_info=True)
+        logger.error(f"Deepgram dual stream error: {e}", exc_info=True)
         await websocket.send_json({"error": str(e), "mode": "dual-channel"})
 
     finally:
@@ -160,4 +160,4 @@ async def handle_deepgram_dual_channel(websocket: WebSocket):
             dg_context.__exit__(None, None, None)
         except Exception:
             pass
-        logger.info("🛑 Deepgram dual-channel stream closed")
+        logger.info("Deepgram dual-channel stream closed")

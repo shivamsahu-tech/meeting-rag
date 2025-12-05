@@ -111,7 +111,7 @@ export function useDualChannelAudio() {
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log("✅ Dual-channel WebSocket open");
+        console.log("Dual-channel WebSocket open");
         setIsConnected(true);
         resolve();
       };
@@ -191,18 +191,18 @@ export function useDualChannelAudio() {
       };
 
       ws.onerror = (err) => {
-        console.error("❌ WebSocket error:", err);
+        console.error("WebSocket error:", err);
         setError("WebSocket connection error");
         reject(err);
       };
 
       ws.onclose = (evt) => {
-        console.warn("🔒 WebSocket closed:", evt.code, evt.reason);
+        console.warn("WebSocket closed:", evt.code, evt.reason);
         wsRef.current = null;
         setIsConnected(false);
 
         if (activeStreamsRef.current.mic || activeStreamsRef.current.media) {
-          console.log("🔄 Attempting to reconnect...");
+          console.log("Attempting to reconnect...");
           setTimeout(() => initWebSocket().catch(console.error), 2000);
         }
       };
